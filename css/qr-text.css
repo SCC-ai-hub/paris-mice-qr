@@ -1,0 +1,344 @@
+:root {
+  --frame: #1a1210;
+  --panel: #f3ead8;
+  --ink: #1a1210;
+  --ink-soft: #4a3f36;
+  --pink: #e89aab;
+  --blue: #3a7ec8;
+  --gold: #d4a017;
+  --purple: #6b4c9a;
+  --navy: #1e3a5f;
+  --cream: #f7f0e4;
+  --overlay: rgba(18, 12, 10, 0.72);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --frame-gap: clamp(6px, 1.8vw, 12px);
+  --radius: clamp(22px, 7vw, 36px);
+  --flag-sm: clamp(36px, 9.5vw, 48px);
+  --flag-lg: clamp(72px, 18vw, 96px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background: var(--frame);
+  color: var(--ink);
+  overscroll-behavior: none;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  padding: var(--frame-gap);
+  padding-top: calc(var(--frame-gap) + var(--safe-top));
+  padding-bottom: calc(var(--frame-gap) + var(--safe-bottom));
+  display: flex;
+}
+
+.panel {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  background: var(--panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* Top colorful mice band — colors pulled from the illustrations */
+.mice-band {
+  position: relative;
+  height: clamp(72px, 18vw, 110px);
+  overflow: hidden;
+  background:
+    linear-gradient(110deg,
+      #f3d5c4 0%,
+      #e89aab 18%,
+      #3a7ec8 42%,
+      #d4a017 62%,
+      #6b4c9a 82%,
+      #8b2942 100%);
+  border-bottom: 3px solid var(--frame);
+}
+
+.mice-band__pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background:
+    repeating-linear-gradient(45deg,
+      transparent 0 10px,
+      rgba(255, 255, 255, 0.35) 10px 14px),
+    repeating-linear-gradient(-45deg,
+      transparent 0 12px,
+      rgba(0, 0, 0, 0.12) 12px 16px);
+  pointer-events: none;
+}
+
+.mice-row {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding: 0 4% 0;
+  gap: 2%;
+}
+
+.mice-row img {
+  height: 92%;
+  width: auto;
+  max-width: 34%;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+  pointer-events: none;
+  user-select: none;
+}
+
+.lang-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: clamp(8px, 2.5vw, 14px);
+  padding: 0 12px 8px;
+  z-index: 2;
+  transform: translateY(55%);
+}
+
+.flag-btn {
+  width: var(--flag-sm);
+  height: var(--flag-sm);
+  border-radius: 50%;
+  border: 2.5px solid var(--frame);
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  flex-shrink: 0;
+}
+
+.flag-btn:active {
+  transform: scale(0.94);
+}
+
+.flag-btn.is-active {
+  box-shadow:
+    0 0 0 3px var(--panel),
+    0 0 0 5px var(--frame),
+    0 6px 14px rgba(0, 0, 0, 0.3);
+  transform: scale(1.08);
+}
+
+.flag-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.content-wrap {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* extra top pad so overlapping language flags don't cover text */
+  padding: clamp(36px, 10vw, 52px) clamp(16px, 5vw, 28px) 8px;
+}
+
+.text-code {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.4rem;
+  opacity: 0.7;
+}
+
+.text-section {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding-right: 10px;
+  touch-action: pan-y;
+}
+
+.text-section::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-track {
+  position: absolute;
+  top: clamp(28px, 8vw, 40px);
+  right: clamp(8px, 2.5vw, 14px);
+  bottom: 8px;
+  width: 3px;
+  background: rgba(26, 18, 16, 0.18);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.scroll-thumb {
+  width: 100%;
+  background: var(--frame);
+  border-radius: 2px;
+  will-change: transform;
+}
+
+.text-body {
+  font-size: clamp(1.05rem, 4.2vw, 1.25rem);
+  line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap;
+  padding-bottom: 1.5rem;
+}
+
+.text-body p {
+  margin: 0 0 0.9em;
+}
+
+.text-body p:last-child {
+  margin-bottom: 0;
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px calc(10px + var(--safe-bottom));
+}
+
+.scroll-arrows {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-btn {
+  width: clamp(48px, 12vw, 60px);
+  height: clamp(48px, 12vw, 60px);
+  border-radius: 50%;
+  border: 2px solid var(--frame);
+  background: transparent;
+  color: var(--frame);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.scroll-btn svg {
+  width: 55%;
+  height: 55%;
+}
+
+.scroll-btn--inactive {
+  opacity: 0.35;
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Language picker overlay */
+.lang-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: var(--overlay);
+  backdrop-filter: blur(4px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 5vw, 28px);
+  padding: 24px;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.lang-overlay.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lang-overlay__title {
+  color: #fff;
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  text-align: center;
+}
+
+.lang-overlay__flags {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: clamp(16px, 5vw, 28px);
+}
+
+.lang-overlay .flag-btn {
+  width: var(--flag-lg);
+  height: var(--flag-lg);
+  border-width: 3px;
+  border-color: #fff;
+}
+
+.lang-overlay .flag-label {
+  display: block;
+  text-align: center;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  margin-top: 8px;
+}
+
+.flag-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+body.has-lang .mice-band {
+  /* room for overlapping flags */
+}
+
+@media (max-height: 560px) {
+  .mice-band {
+    height: clamp(56px, 14vw, 80px);
+  }
+  .text-body {
+    font-size: clamp(0.95rem, 3.8vw, 1.1rem);
+  }
+}

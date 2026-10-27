@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1210">
+  <title>Paris Mice — QR texts (demo)</title>
+  <style>
+    :root {
+      --frame: #1a1210;
+      --panel: #f3ead8;
+      --pink: #e89aab;
+      --blue: #3a7ec8;
+      --gold: #d4a017;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100dvh;
+      font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      background: var(--frame);
+      color: var(--panel);
+      padding: 24px 18px 40px;
+    }
+    .wrap { max-width: 520px; margin: 0 auto; }
+    h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.04em;
+    }
+    p.lead {
+      opacity: 0.75;
+      font-size: 0.95rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.45;
+    }
+    .list { display: grid; gap: 12px; }
+    a.card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+      color: var(--frame);
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+    }
+    .num {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--pink), var(--blue), var(--gold));
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .meta { font-size: 0.85rem; opacity: 0.65; }
+    .qr-row {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 14px;
+    }
+    .qr-item {
+      background: var(--panel);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: center;
+      color: var(--frame);
+    }
+    .qr-item img { width: 100%; height: auto; border-radius: 8px; }
+    .qr-item span { display: block; margin-top: 8px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Мышиный Париж — QR-тексты</h1>
+    <p class="lead">Демо первых пяти стендов. Отсканируйте QR или откройте страницу на телефоне.</p>
+    <div class="list">
+      <a class="card" href="t/1-1/"><span class="num">1.1</span><span>Приветствие Зелёной Мышки<span class="meta"><br>зал 0</span></span></a>
+      <a class="card" href="t/1-2/"><span class="num">1.2</span><span>Мышиный Париж<span class="meta"><br>зал 1</span></span></a>
+      <a class="card" href="t/1-3/"><span class="num">1.3</span><span>Хранилище брата Гриньо<span class="meta"><br>зал 2</span></span></a>
+      <a class="card" href="t/1-4/"><span class="num">1.4</span><span>Парижский университет<span class="meta"><br>зал 2</span></span></a>
+      <a class="card" href="t/1-5/"><span class="num">1.5</span><span>Мышь-собирательница<span class="meta"><br>зал 3</span></span></a>
+    </div>
+
+    <h1 style="margin-top:2rem;font-size:1.15rem">QR-коды</h1>
+    <div class="qr-row">
+      <div class="qr-item"><img src="qr/1-1.png" alt="QR 1.1"><span>1.1</span></div>
+      <div class="qr-item"><img src="qr/1-2.png" alt="QR 1.2"><span>1.2</span></div>
+      <div class="qr-item"><img src="qr/1-3.png" alt="QR 1.3"><span>1.3</span></div>
+      <div class="qr-item"><img src="qr/1-4.png" alt="QR 1.4"><span>1.4</span></div>
+      <div class="qr-item"><img src="qr/1-5.png" alt="QR 1.5"><span>1.5</span></div>
+    </div>
+  </div>
+</body>
+</html>

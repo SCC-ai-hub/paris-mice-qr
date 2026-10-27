@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1a1210">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>QR Text 1.1</title>
+  <link rel="stylesheet" href="../../css/qr-text.css">
+</head>
+<body>
+  <div class="stage">
+    <div class="panel">
+      <header class="mice-band" aria-hidden="true">
+        <div class="mice-band__pattern"></div>
+        <div class="mice-row">
+          <img src="../../assets/mice/mouse-green.jpg" alt="">
+          <img src="../../assets/mice/mouse-blue.jpg" alt="">
+          <img src="../../assets/mice/mouse-napoleon.jpg" alt="">
+        </div>
+        <div class="lang-bar" data-bar-flags></div>
+      </header>
+
+      <main class="content-wrap">
+        <div class="text-code" data-text-code></div>
+        <div class="text-section">
+          <div class="text-body" data-text-body></div>
+        </div>
+        <div class="scroll-track" aria-hidden="true"><div class="scroll-thumb"></div></div>
+      </main>
+
+      <footer class="footer">
+        <div class="scroll-arrows" aria-label="Scroll text">
+          <button type="button" class="scroll-btn" data-scroll-up aria-label="Scroll up">
+            <svg viewBox="0 0 24 14" aria-hidden="true"><path d="M2 12L12 2l10 10" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" class="scroll-btn" data-scroll-down aria-label="Scroll down">
+            <svg viewBox="0 0 24 14" aria-hidden="true"><path d="M2 2l10 10L22 2" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </footer>
+
+      <div class="lang-overlay" data-lang-overlay>
+        <div class="lang-overlay__title">Language / Язык</div>
+        <div class="lang-overlay__flags" data-overlay-flags></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../js/qr-text.js"></script>
+  <script>
+    QRTextApp.load("1.1").catch(function (err) {
+      document.querySelector("[data-text-body]").textContent = "Error loading text.";
+      console.error(err);
+    });
+  </script>
+</body>
+</html>
+
