@@ -223,8 +223,13 @@
       btn.innerHTML = flagMarkup(lang.code);
 
       if (withLabels) {
-        var wrap = document.createElement("div");
+        var wrap = document.createElement("button");
+        wrap.type = "button";
         wrap.className = "flag-choice";
+        wrap.setAttribute("aria-label", lang.label);
+        // decorative inner circle — clicks handled by wrap
+        btn.tabIndex = -1;
+        btn.setAttribute("aria-hidden", "true");
         wrap.appendChild(btn);
         var lab = document.createElement("span");
         lab.className = "flag-label";

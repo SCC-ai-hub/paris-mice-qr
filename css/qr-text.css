@@ -65,7 +65,7 @@ body {
 /* Top colorful mice band — colors pulled from the illustrations */
 .mice-band {
   position: relative;
-  height: clamp(72px, 18vw, 110px);
+  height: clamp(110px, 28vw, 150px);
   overflow: hidden;
   background:
     linear-gradient(110deg,
@@ -76,6 +76,11 @@ body {
       #6b4c9a 82%,
       #8b2942 100%);
   border-bottom: 3px solid var(--frame);
+  z-index: 3;
+}
+
+body.has-lang .mice-band {
+  height: clamp(128px, 32vw, 168px);
 }
 
 .mice-band__pattern {
@@ -94,36 +99,56 @@ body {
 
 .mice-row {
   position: absolute;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 72%;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  padding: 0 4% 0;
-  gap: 2%;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 10px 6% 0;
+  gap: 4%;
 }
 
 .mice-row img {
-  height: 92%;
-  width: auto;
-  max-width: 34%;
-  object-fit: contain;
-  object-position: bottom center;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+  width: clamp(64px, 22vw, 96px);
+  height: clamp(64px, 22vw, 96px);
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 18%;
+  border: 2.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background: #fff;
   pointer-events: none;
   user-select: none;
+}
+
+.mice-row img:nth-child(2) {
+  object-position: center 30%;
+}
+
+.mice-row img:nth-child(3) {
+  object-position: center 35%;
 }
 
 .lang-bar {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 8px;
   display: flex;
   justify-content: center;
   gap: clamp(8px, 2.5vw, 14px);
-  padding: 0 12px 8px;
-  z-index: 2;
-  transform: translateY(55%);
+  padding: 0 12px;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+body.has-lang .lang-bar {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .flag-btn {
@@ -163,8 +188,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  /* extra top pad so overlapping language flags don't cover text */
-  padding: clamp(36px, 10vw, 52px) clamp(16px, 5vw, 28px) 8px;
+  padding: clamp(14px, 4vw, 22px) clamp(16px, 5vw, 28px) 8px;
 }
 
 .text-code {
@@ -194,7 +218,7 @@ body {
 
 .scroll-track {
   position: absolute;
-  top: clamp(28px, 8vw, 40px);
+  top: clamp(14px, 4vw, 22px);
   right: clamp(8px, 2.5vw, 14px);
   bottom: 8px;
   width: 3px;
@@ -232,6 +256,14 @@ body {
   align-items: center;
   gap: 10px;
   padding: 4px 12px calc(10px + var(--safe-bottom));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+body.has-lang .footer {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .scroll-arrows {
@@ -330,13 +362,14 @@ body {
   padding: 0;
 }
 
-body.has-lang .mice-band {
-  /* room for overlapping flags */
-}
-
 @media (max-height: 560px) {
-  .mice-band {
-    height: clamp(56px, 14vw, 80px);
+  .mice-band,
+  body.has-lang .mice-band {
+    height: clamp(88px, 22vw, 110px);
+  }
+  .mice-row img {
+    width: clamp(48px, 16vw, 72px);
+    height: clamp(48px, 16vw, 72px);
   }
   .text-body {
     font-size: clamp(0.95rem, 3.8vw, 1.1rem);
