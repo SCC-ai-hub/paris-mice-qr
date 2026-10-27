@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#1a1210">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>QR Text __ID__</title>
-  <link rel="stylesheet" href="__ROOT__css/qr-text.css?v=10">
+  <link rel="stylesheet" href="__ROOT__css/qr-text.css?v=11">
 </head>
 <body>
   <div class="stage">
@@ -53,7 +53,7 @@
     </div>
   </div>
 
-  <script src="__ROOT__js/qr-text.js?v=10"></script>
+  <script src="__ROOT__js/qr-text.js?v=11"></script>
   <script>
     QRTextApp.load("__ID__").catch(function (err) {
       document.querySelector("[data-text-body]").textContent = "Error loading text.";

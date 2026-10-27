@@ -31,7 +31,8 @@
 html, body {
   height: 100%;
   overflow: hidden;
-  touch-action: pan-x pan-y;
+  /* Disable browser pinch/double-tap zoom; scroll still allowed where set */
+  touch-action: manipulation;
 }
 
 body {
@@ -39,6 +40,11 @@ body {
   background: var(--frame);
   color: var(--ink);
   overscroll-behavior: none;
+}
+
+.stage,
+.panel {
+  touch-action: manipulation;
 }
 
 .stage {

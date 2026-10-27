@@ -114,10 +114,28 @@
     return Math.hypot(dx, dy);
   }
 
+  var VIEWPORT_CONTENT =
+    "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover";
+
+  function resetBrowserZoom() {
+    var vv = window.visualViewport;
+    if (!vv || Math.abs(vv.scale - 1) < 0.02) return;
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (!meta) return;
+    // Known mobile hack: briefly bump max-scale to force the browser back to 1
+    meta.setAttribute("content", VIEWPORT_CONTENT.replace("maximum-scale=1", "maximum-scale=1.01"));
+    window.setTimeout(function () {
+      meta.setAttribute("content", VIEWPORT_CONTENT);
+    }, 30);
+  }
+
   function initPinchFontScale(onChange) {
     var scale = getSavedFontScale();
     var pinchStartDist = 0;
     var pinchStartScale = scale;
+    var pinching = false;
+    var usingGestureApi = false;
+    var lastTouchEnd = 0;
 
     function applyScale(next, persist) {
       scale = Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, next));
@@ -129,65 +147,93 @@
     // Apply saved scale without onChange — caller may not be ready yet
     document.documentElement.style.setProperty("--text-scale", String(scale));
 
+    var meta = document.querySelector('meta[name="viewport"]');
+    if (meta) meta.setAttribute("content", VIEWPORT_CONTENT);
+
+    // Block multi-touch browser zoom as early as possible (must be non-passive)
     document.addEventListener(
       "touchstart",
       function (e) {
-        if (e.touches.length === 2) {
+        if (e.touches.length >= 2) {
+          e.preventDefault();
+          pinching = true;
+          usingGestureApi = false;
           pinchStartDist = touchDistance(e.touches);
           pinchStartScale = scale;
         }
       },
-      { passive: true }
+      { passive: false, capture: true }
     );
 
     document.addEventListener(
       "touchmove",
       function (e) {
-        if (e.touches.length !== 2 || pinchStartDist <= 0) return;
+        if (e.touches.length < 2) return;
         e.preventDefault();
+        if (usingGestureApi) return; // iOS gesture* already drives font scale
+        if (!pinching || pinchStartDist <= 0) {
+          pinching = true;
+          pinchStartDist = touchDistance(e.touches);
+          pinchStartScale = scale;
+          return;
+        }
         var ratio = touchDistance(e.touches) / pinchStartDist;
         applyScale(pinchStartScale * ratio, false);
+      },
+      { passive: false, capture: true }
+    );
+
+    function endPinch() {
+      if (pinching) {
+        saveFontScale(scale);
+        pinching = false;
+        pinchStartDist = 0;
+        usingGestureApi = false;
+      }
+      resetBrowserZoom();
+    }
+
+    document.addEventListener("touchend", endPinch, { passive: true, capture: true });
+    document.addEventListener("touchcancel", endPinch, { passive: true, capture: true });
+
+    // Block double-tap page zoom (keep quick taps on buttons working)
+    document.addEventListener(
+      "touchend",
+      function (e) {
+        var now = Date.now();
+        if (now - lastTouchEnd <= 280) {
+          var interactive =
+            e.target &&
+            e.target.closest &&
+            e.target.closest("button, a, input, label, .flag-btn, .flag-choice");
+          if (!interactive) e.preventDefault();
+        }
+        lastTouchEnd = now;
       },
       { passive: false }
     );
 
-    document.addEventListener(
-      "touchend",
-      function () {
-        if (pinchStartDist > 0) {
-          saveFontScale(scale);
-          pinchStartDist = 0;
-        }
-      },
-      { passive: true }
-    );
-
-    document.addEventListener(
-      "touchcancel",
-      function () {
-        pinchStartDist = 0;
-      },
-      { passive: true }
-    );
-
-    // Safari / iOS: block browser page zoom, map gesture to font scale
+    // Safari / iOS gesture API
     document.addEventListener(
       "gesturestart",
       function (e) {
         e.preventDefault();
+        usingGestureApi = true;
+        pinching = true;
         pinchStartScale = scale;
       },
-      { passive: false }
+      { passive: false, capture: true }
     );
 
     document.addEventListener(
       "gesturechange",
       function (e) {
         e.preventDefault();
+        usingGestureApi = true;
         var g = typeof e.scale === "number" ? e.scale : 1;
         applyScale(pinchStartScale * g, false);
       },
-      { passive: false }
+      { passive: false, capture: true }
     );
 
     document.addEventListener(
@@ -195,9 +241,18 @@
       function (e) {
         e.preventDefault();
         saveFontScale(scale);
+        pinching = false;
+        usingGestureApi = false;
+        resetBrowserZoom();
       },
-      { passive: false }
+      { passive: false, capture: true }
     );
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", resetBrowserZoom);
+      window.visualViewport.addEventListener("scroll", resetBrowserZoom);
+    }
+    window.addEventListener("resize", resetBrowserZoom);
 
     return {
       getScale: function () {
