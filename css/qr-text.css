@@ -178,12 +178,6 @@ body.has-lang .lang-bar {
   transform: scale(1.12);
 }
 
-/* Overlay picker: all flags fully visible with white ring */
-.lang-overlay .flag-btn {
-  opacity: 1;
-  border: 3px solid #fff;
-}
-
 .flag-btn svg {
   display: block;
   width: 100%;
@@ -361,8 +355,8 @@ body.has-lang .footer {
 .lang-overlay .flag-btn {
   width: var(--flag-lg);
   height: var(--flag-lg);
-  border-width: 3px;
-  border-color: #fff;
+  opacity: 1;
+  border: 3px solid #fff;
 }
 
 .lang-overlay .flag-label {
