@@ -6,6 +6,19 @@
     { code: "es", label: "Español" }
   ];
 
+  var MICE = [
+    "mouse-green.jpg",
+    "mouse-blue.jpg",
+    "mouse-napoleon.jpg"
+  ];
+
+  var LANG_STORAGE_KEY = "parisMiceLang";
+  // Test mode: always show language picker on load.
+  // Persistence still saves; later set to false to skip picker when lang is known.
+  var ALWAYS_SHOW_LANG_PICKER = true;
+
+  var FADE_MS = 280;
+
   var FLAG_SVG = {
     ru:
       '<svg viewBox="0 0 60 60" aria-hidden="true"><rect width="60" height="20" y="0" fill="#fff"/><rect width="60" height="20" y="20" fill="#0039A6"/><rect width="60" height="20" y="40" fill="#D52B1E"/></svg>',
@@ -49,12 +62,49 @@
     return Array.prototype.slice.call((root || document).querySelectorAll(sel));
   }
 
+  function isValidLang(code) {
+    return LANGS.some(function (l) {
+      return l.code === code;
+    });
+  }
+
+  function getSavedLang() {
+    try {
+      var code = localStorage.getItem(LANG_STORAGE_KEY);
+      return isValidLang(code) ? code : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveLang(code) {
+    try {
+      localStorage.setItem(LANG_STORAGE_KEY, code);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function pickMouse(id) {
+    var h = 0;
+    var s = String(id || "");
+    for (var i = 0; i < s.length; i++) {
+      h = (h * 31 + s.charCodeAt(i)) | 0;
+    }
+    return MICE[Math.abs(h) % MICE.length];
+  }
+
+  function assetRoot() {
+    var base = document.querySelector('script[src*="qr-text.js"]');
+    return base ? base.getAttribute("src").replace(/js\/qr-text\.js.*$/, "") : "../../";
+  }
+
   function initScroll(textSection) {
     var scrollTrack = qs(".scroll-track");
     var scrollThumb = qs(".scroll-thumb");
     var btnUp = qs("[data-scroll-up]");
     var btnDown = qs("[data-scroll-down]");
-    if (!textSection || !scrollTrack || !scrollThumb) return { reset: function () {} };
+    if (!textSection || !scrollTrack || !scrollThumb) return { reset: function () {}, update: function () {} };
 
     function maxScroll() {
       return Math.max(0, textSection.scrollHeight - textSection.clientHeight);
@@ -227,7 +277,6 @@
         wrap.type = "button";
         wrap.className = "flag-choice";
         wrap.setAttribute("aria-label", lang.label);
-        // decorative inner circle — clicks handled by wrap
         btn.tabIndex = -1;
         btn.setAttribute("aria-hidden", "true");
         wrap.appendChild(btn);
@@ -254,43 +303,91 @@
     var overlay = qs("[data-lang-overlay]");
     var overlayFlags = qs("[data-overlay-flags]");
     var barFlags = qs("[data-bar-flags]");
+    var mouseImg = qs("[data-mouse-img]");
     var textSection = qs(".text-section");
     var scrollApi = initScroll(textSection);
     var currentLang = null;
+    var fading = false;
+    var root = assetRoot();
 
     if (textCode) textCode.textContent = entry.id;
 
-    function setLang(code, fromOverlay) {
-      currentLang = code;
-      document.body.classList.add("has-lang");
-      document.documentElement.lang = code;
-      textBody.innerHTML = paragraphs(entry.texts[code] || "");
+    if (mouseImg) {
+      mouseImg.src = root + "assets/mice/" + pickMouse(entry.id);
+    }
+
+    function markActiveFlags(code) {
       qsa(".flag-btn", barFlags).forEach(function (b) {
         b.classList.toggle("is-active", b.dataset.lang === code);
       });
-      if (fromOverlay && overlay) {
-        overlay.classList.add("is-hidden");
-      }
+    }
+
+    function applyText(code) {
+      textBody.innerHTML = paragraphs(entry.texts[code] || "");
       scrollApi.reset();
       requestAnimationFrame(function () {
         scrollApi.update();
       });
     }
 
+    function setLang(code, opts) {
+      opts = opts || {};
+      var fromOverlay = !!opts.fromOverlay;
+      var animate = opts.animate !== false && currentLang && currentLang !== code;
+
+      if (!isValidLang(code)) return;
+      if (fading) return;
+      if (currentLang === code && !fromOverlay) return;
+
+      saveLang(code);
+      document.body.classList.add("has-lang");
+      document.documentElement.lang = code;
+      markActiveFlags(code);
+
+      if (fromOverlay && overlay) {
+        overlay.classList.add("is-hidden");
+      }
+
+      if (!animate) {
+        currentLang = code;
+        applyText(code);
+        textBody.classList.remove("is-fading");
+        return;
+      }
+
+      fading = true;
+      textBody.classList.add("is-fading");
+      window.setTimeout(function () {
+        currentLang = code;
+        applyText(code);
+        // force reflow so fade-in plays
+        void textBody.offsetWidth;
+        textBody.classList.remove("is-fading");
+        fading = false;
+      }, FADE_MS);
+    }
+
     buildFlags(overlayFlags, "flag-btn", true, function (code) {
-      setLang(code, true);
+      setLang(code, { fromOverlay: true, animate: false });
     });
 
     buildFlags(barFlags, "flag-btn", false, function (code) {
-      setLang(code, false);
+      setLang(code, { fromOverlay: false, animate: true });
     });
+
+    var saved = getSavedLang();
+    if (saved && !ALWAYS_SHOW_LANG_PICKER) {
+      setLang(saved, { fromOverlay: true, animate: false });
+    } else if (saved) {
+      // Test: picker still shown, but highlight saved language in bar once opened
+      markActiveFlags(saved);
+    }
   }
 
   window.QRTextApp = {
     boot: boot,
     load: function (textId) {
-      var base = document.querySelector('script[src*="qr-text.js"]');
-      var root = base ? base.getAttribute("src").replace(/js\/qr-text\.js.*$/, "") : "../../";
+      var root = assetRoot();
       return fetch(root + "data/texts.json")
         .then(function (r) {
           return r.json();

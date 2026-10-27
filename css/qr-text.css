@@ -10,12 +10,14 @@
   --navy: #1e3a5f;
   --cream: #f7f0e4;
   --overlay: rgba(18, 12, 10, 0.72);
+  --lang-tray: #0d0a09;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --frame-gap: clamp(6px, 1.8vw, 12px);
   --radius: clamp(22px, 7vw, 36px);
   --flag-sm: clamp(36px, 9.5vw, 48px);
   --flag-lg: clamp(72px, 18vw, 96px);
+  --fade-ms: 280ms;
 }
 
 * {
@@ -62,7 +64,7 @@ body {
     0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
-/* Top colorful mice band — colors pulled from the illustrations */
+/* Top colorful band — one mouse, colors from illustrations */
 .mice-band {
   position: relative;
   height: clamp(110px, 28vw, 150px);
@@ -80,7 +82,7 @@ body {
 }
 
 body.has-lang .mice-band {
-  height: clamp(128px, 32vw, 168px);
+  height: clamp(136px, 34vw, 176px);
 }
 
 .mice-band__pattern {
@@ -102,45 +104,41 @@ body.has-lang .mice-band {
   left: 0;
   right: 0;
   top: 0;
-  height: 72%;
+  height: 68%;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
   padding: 10px 6% 0;
-  gap: 4%;
 }
 
 .mice-row img {
-  width: clamp(64px, 22vw, 96px);
-  height: clamp(64px, 22vw, 96px);
+  width: clamp(78px, 26vw, 112px);
+  height: clamp(78px, 26vw, 112px);
   border-radius: 50%;
   object-fit: cover;
-  object-position: center 18%;
-  border: 2.5px solid rgba(255, 255, 255, 0.85);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  object-position: center 22%;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
   background: #fff;
   pointer-events: none;
   user-select: none;
 }
 
-.mice-row img:nth-child(2) {
-  object-position: center 30%;
-}
-
-.mice-row img:nth-child(3) {
-  object-position: center 35%;
-}
-
+/* Language flags sit on a black tray */
 .lang-bar {
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 50%;
   bottom: 8px;
+  transform: translateX(-50%);
   display: flex;
   justify-content: center;
-  gap: clamp(8px, 2.5vw, 14px);
-  padding: 0 12px;
+  align-items: center;
+  gap: clamp(8px, 2.5vw, 12px);
+  padding: 7px 12px;
   z-index: 4;
+  background: var(--lang-tray);
+  border-radius: 999px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.25s ease;
@@ -155,12 +153,12 @@ body.has-lang .lang-bar {
   width: var(--flag-sm);
   height: var(--flag-sm);
   border-radius: 50%;
-  border: 2.5px solid var(--frame);
+  border: 2.5px solid #fff;
   padding: 0;
   cursor: pointer;
   overflow: hidden;
   background: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   flex-shrink: 0;
 }
@@ -171,10 +169,10 @@ body.has-lang .lang-bar {
 
 .flag-btn.is-active {
   box-shadow:
-    0 0 0 3px var(--panel),
-    0 0 0 5px var(--frame),
-    0 6px 14px rgba(0, 0, 0, 0.3);
-  transform: scale(1.08);
+    0 0 0 2px var(--lang-tray),
+    0 0 0 4px #fff,
+    0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
 }
 
 .flag-btn svg {
@@ -240,6 +238,12 @@ body.has-lang .lang-bar {
   color: var(--ink);
   white-space: pre-wrap;
   padding-bottom: 1.5rem;
+  opacity: 1;
+  transition: opacity var(--fade-ms) ease;
+}
+
+.text-body.is-fading {
+  opacity: 0;
 }
 
 .text-body p {
@@ -309,7 +313,6 @@ body.has-lang .footer {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(18px, 5vw, 28px);
   padding: 24px;
   transition: opacity 0.35s ease, visibility 0.35s ease;
 }
@@ -320,9 +323,20 @@ body.has-lang .footer {
   pointer-events: none;
 }
 
+.lang-overlay__tray {
+  background: var(--lang-tray);
+  border-radius: clamp(20px, 5vw, 28px);
+  padding: clamp(18px, 5vw, 26px) clamp(18px, 5vw, 28px) clamp(16px, 4vw, 22px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(14px, 4vw, 20px);
+}
+
 .lang-overlay__title {
   color: #fff;
-  font-size: clamp(1rem, 4vw, 1.2rem);
+  font-size: clamp(0.95rem, 3.8vw, 1.15rem);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-weight: 600;
@@ -332,7 +346,7 @@ body.has-lang .footer {
 .lang-overlay__flags {
   display: grid;
   grid-template-columns: repeat(2, auto);
-  gap: clamp(16px, 5vw, 28px);
+  gap: clamp(14px, 4vw, 22px) clamp(18px, 5vw, 28px);
 }
 
 .lang-overlay .flag-btn {
@@ -360,16 +374,17 @@ body.has-lang .footer {
   border: none;
   cursor: pointer;
   padding: 0;
+  color: inherit;
 }
 
 @media (max-height: 560px) {
   .mice-band,
   body.has-lang .mice-band {
-    height: clamp(88px, 22vw, 110px);
+    height: clamp(96px, 24vw, 120px);
   }
   .mice-row img {
-    width: clamp(48px, 16vw, 72px);
-    height: clamp(48px, 16vw, 72px);
+    width: clamp(56px, 18vw, 80px);
+    height: clamp(56px, 18vw, 80px);
   }
   .text-body {
     font-size: clamp(0.95rem, 3.8vw, 1.1rem);

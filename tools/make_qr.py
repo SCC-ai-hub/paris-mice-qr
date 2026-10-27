@@ -1,4 +1,4 @@
-"""Generate colorful QR codes with center labels for exhibition pages."""
+"""Generate QR codes: white background, saturated dark module colors, center label."""
 from __future__ import annotations
 
 import argparse
@@ -7,26 +7,22 @@ from pathlib import Path
 import qrcode
 from PIL import Image, ImageDraw, ImageFont
 from qrcode.image.styledpil import StyledPilImage
-from qrcode.image.styles.colormasks import RadialGradiantColorMask
+from qrcode.image.styles.colormasks import SolidFillColorMask
 from qrcode.image.styles.moduledrawers import RoundedModuleDrawer
 
 
-PALETTES = [
-    # pink → blue
-    ((232, 154, 171), (58, 126, 200), (26, 18, 16)),
-    # blue → gold
-    ((58, 126, 200), (212, 160, 23), (26, 18, 16)),
-    # gold → purple
-    ((212, 160, 23), (107, 76, 154), (26, 18, 16)),
-    # purple → pink
-    ((107, 76, 154), (232, 154, 171), (26, 18, 16)),
-    # navy → cream accent via gold
-    ((30, 58, 95), (212, 160, 23), (26, 18, 16)),
+# Saturated dark colors for QR modules (on white)
+COLORS = [
+    (20, 70, 170),    # deep blue
+    (12, 110, 105),   # teal
+    (95, 25, 140),    # violet
+    (150, 25, 55),    # crimson
+    (15, 95, 55),     # forest green
 ]
 
 
-def make_qr(url: str, label: str, out: Path, palette_idx: int) -> None:
-    center, edge, back = PALETTES[palette_idx % len(PALETTES)]
+def make_qr(url: str, label: str, out: Path, color_idx: int) -> None:
+    color = COLORS[color_idx % len(COLORS)]
     qr = qrcode.QRCode(
         version=None,
         error_correction=qrcode.constants.ERROR_CORRECT_H,
@@ -38,45 +34,39 @@ def make_qr(url: str, label: str, out: Path, palette_idx: int) -> None:
 
     img = qr.make_image(
         image_factory=StyledPilImage,
-        module_drawer=RoundedModuleDrawer(radius_ratio=0.6),
-        color_mask=RadialGradiantColorMask(
-            back_color=back,
-            center_color=center,
-            edge_color=edge,
-        ),
+        module_drawer=RoundedModuleDrawer(radius_ratio=0.55),
+        color_mask=SolidFillColorMask(back_color=(255, 255, 255), front_color=color),
     ).convert("RGBA")
 
-    # Soft light panel behind code (for print contrast)
     pad = 28
-    canvas = Image.new("RGBA", (img.width + pad * 2, img.height + pad * 2), (243, 234, 216, 255))
+    canvas = Image.new("RGBA", (img.width + pad * 2, img.height + pad * 2), (255, 255, 255, 255))
     canvas.paste(img, (pad, pad), img)
 
-    # Center badge with number
     draw = ImageDraw.Draw(canvas)
     cx, cy = canvas.width // 2, canvas.height // 2
     badge_r = int(min(canvas.width, canvas.height) * 0.13)
     draw.ellipse(
         (cx - badge_r, cy - badge_r, cx + badge_r, cy + badge_r),
-        fill=(243, 234, 216, 255),
-        outline=(26, 18, 16, 255),
-        width=4,
+        fill=(255, 255, 255, 255),
+        outline=color + (255,),
+        width=5,
     )
 
     try:
-        font = ImageFont.truetype("arialbd.ttf", size=int(badge_r * 0.95))
+        font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", size=int(badge_r * 0.95))
     except OSError:
         try:
-            font = ImageFont.truetype("C:/Windows/Fonts/arialbd.ttf", size=int(badge_r * 0.95))
+            font = ImageFont.truetype("arialbd.ttf", size=int(badge_r * 0.95))
         except OSError:
             font = ImageFont.load_default()
 
     bbox = draw.textbbox((0, 0), label, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    draw.text((cx - tw / 2, cy - th / 2 - 2), label, fill=(26, 18, 16, 255), font=font)
+    draw.text((cx - tw / 2, cy - th / 2 - 2), label, fill=color + (255,), font=font)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.convert("RGB").save(out, "PNG")
-    print(f"wrote {out}")
+    print(f"wrote {out} color={color}")
 
 
 def main() -> None:
