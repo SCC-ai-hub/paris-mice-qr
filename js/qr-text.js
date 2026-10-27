@@ -15,6 +15,14 @@
   var FADE_MS = 280;
   var FONT_SCALE_MIN = 0.75;
   var FONT_SCALE_MAX = 2.25;
+  var FONT_SCALE_STEP = 0.12;
+
+  var FONT_HINTS = {
+    ru: "Размер текста",
+    en: "Text size",
+    fr: "Taille du texte",
+    es: "Tamaño del texto"
+  };
 
   var FLAG_SVG = {
     ru:
@@ -189,6 +197,15 @@
       },
       { passive: false }
     );
+
+    return {
+      getScale: function () {
+        return scale;
+      },
+      stepBy: function (delta) {
+        applyScale(scale + delta, true);
+      }
+    };
   }
 
   function assetRoot() {
@@ -401,6 +418,9 @@
     var overlayFlags = qs("[data-overlay-flags]");
     var barFlags = qs("[data-bar-flags]");
     var textSection = qs(".text-section");
+    var btnFontMinus = qs("[data-font-minus]");
+    var btnFontPlus = qs("[data-font-plus]");
+    var fontHint = qs("[data-font-hint]");
     var scrollApi = initScroll(textSection);
     var currentLang = null;
     var fading = false;
@@ -411,6 +431,11 @@
       qsa(".flag-btn", barFlags).forEach(function (b) {
         b.classList.toggle("is-active", b.dataset.lang === code);
       });
+    }
+
+    function updateFontHint(code) {
+      if (!fontHint) return;
+      fontHint.textContent = FONT_HINTS[code] || FONT_HINTS.en;
     }
 
     function applyText(code) {
@@ -434,6 +459,7 @@
       document.body.classList.add("has-lang");
       document.documentElement.lang = code;
       markActiveFlags(code);
+      updateFontHint(code);
 
       if (fromOverlay && overlay) {
         overlay.classList.add("is-hidden");
@@ -451,7 +477,6 @@
       window.setTimeout(function () {
         currentLang = code;
         applyText(code);
-        // force reflow so fade-in plays
         void textBody.offsetWidth;
         textBody.classList.remove("is-fading");
         fading = false;
@@ -466,18 +491,45 @@
       setLang(code, { fromOverlay: false, animate: true });
     });
 
-    initPinchFontScale(function () {
+    var fontApi = initPinchFontScale(function () {
+      updateFontButtons();
       requestAnimationFrame(function () {
         scrollApi.update();
       });
     });
 
+    function updateFontButtons() {
+      var s = fontApi.getScale();
+      if (btnFontMinus) {
+        btnFontMinus.disabled = s <= FONT_SCALE_MIN + 0.001;
+        btnFontMinus.classList.toggle("is-disabled", btnFontMinus.disabled);
+      }
+      if (btnFontPlus) {
+        btnFontPlus.disabled = s >= FONT_SCALE_MAX - 0.001;
+        btnFontPlus.classList.toggle("is-disabled", btnFontPlus.disabled);
+      }
+    }
+
+    if (btnFontMinus) {
+      btnFontMinus.addEventListener("click", function () {
+        fontApi.stepBy(-FONT_SCALE_STEP);
+      });
+    }
+    if (btnFontPlus) {
+      btnFontPlus.addEventListener("click", function () {
+        fontApi.stepBy(FONT_SCALE_STEP);
+      });
+    }
+    updateFontButtons();
+
     var saved = getSavedLang();
     if (saved && !ALWAYS_SHOW_LANG_PICKER) {
       setLang(saved, { fromOverlay: true, animate: false });
     } else if (saved) {
-      // Test: picker still shown, but highlight saved language in bar once opened
       markActiveFlags(saved);
+      updateFontHint(saved);
+    } else {
+      updateFontHint("en");
     }
   }
 

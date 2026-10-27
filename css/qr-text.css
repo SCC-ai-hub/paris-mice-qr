@@ -66,33 +66,30 @@ body {
     0 18px 40px rgba(0, 0, 0, 0.35);
 }
 
-/* Top black bar with language circles only */
+/* Top chrome: languages + font size controls */
+.top-chrome {
+  z-index: 3;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.25s ease, max-height 0.25s ease;
+}
+
+body.has-lang .top-chrome {
+  opacity: 1;
+  max-height: 160px;
+  pointer-events: auto;
+}
+
 .lang-band {
   position: relative;
-  z-index: 3;
   background: var(--lang-tray);
   min-height: clamp(56px, 14vw, 68px);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px 12px;
-  /* keep bar compact before language is chosen */
-  opacity: 0;
-  max-height: 0;
-  min-height: 0;
-  padding-top: 0;
-  padding-bottom: 0;
-  overflow: hidden;
-  pointer-events: none;
-  transition: opacity 0.25s ease, max-height 0.25s ease, padding 0.25s ease, min-height 0.25s ease;
-}
-
-body.has-lang .lang-band {
-  opacity: 1;
-  max-height: 100px;
-  min-height: clamp(56px, 14vw, 68px);
-  padding: 10px 12px;
-  pointer-events: auto;
 }
 
 .lang-bar {
@@ -100,6 +97,78 @@ body.has-lang .lang-band {
   justify-content: center;
   align-items: center;
   gap: clamp(10px, 3vw, 16px);
+}
+
+.font-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 4vw, 18px);
+  padding: 8px 12px 10px;
+  background: var(--panel);
+  border-bottom: 1px solid rgba(26, 18, 16, 0.12);
+}
+
+.font-btn {
+  width: clamp(40px, 10vw, 48px);
+  height: clamp(40px, 10vw, 48px);
+  border-radius: 50%;
+  border: 2px solid var(--frame);
+  background: transparent;
+  color: var(--frame);
+  font-size: 1.45rem;
+  font-weight: 500;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.font-btn:active {
+  transform: scale(0.94);
+}
+
+.font-btn.is-disabled,
+.font-btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.font-controls__hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 7.5rem;
+  text-align: center;
+}
+
+.font-controls__aa {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.font-controls__a-sm {
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.font-controls__a-lg {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.font-controls__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
 }
 
 .flag-btn {
@@ -336,9 +405,15 @@ body.has-lang .footer {
 }
 
 @media (max-height: 560px) {
-  body.has-lang .lang-band {
+  body.has-lang .top-chrome {
+    max-height: 140px;
+  }
+  .lang-band {
     min-height: 52px;
     padding: 8px 10px;
+  }
+  .font-controls {
+    padding: 6px 10px 8px;
   }
   .text-body {
     font-size: calc(clamp(0.95rem, 3.8vw, 1.1rem) * var(--text-scale));
