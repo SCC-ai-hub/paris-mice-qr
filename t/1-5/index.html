@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#1a1210">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>QR Text 1.5</title>
-  <link rel="stylesheet" href="../../css/qr-text.css">
+  <link rel="stylesheet" href="../../css/qr-text.css?v=3">
 </head>
 <body>
   <div class="stage">
@@ -47,7 +47,7 @@
     </div>
   </div>
 
-  <script src="../../js/qr-text.js"></script>
+  <script src="../../js/qr-text.js?v=3"></script>
   <script>
     QRTextApp.load("1.5").catch(function (err) {
       document.querySelector("[data-text-body]").textContent = "Error loading text.";
@@ -56,4 +56,5 @@
   </script>
 </body>
 </html>
+
 
