@@ -126,7 +126,8 @@
       if (onChange) onChange(scale);
     }
 
-    applyScale(scale, false);
+    // Apply saved scale without onChange — caller may not be ready yet
+    document.documentElement.style.setProperty("--text-scale", String(scale));
 
     document.addEventListener(
       "touchstart",
