@@ -7,11 +7,14 @@
   ];
 
   var LANG_STORAGE_KEY = "parisMiceLang";
+  var FONT_SCALE_KEY = "parisMiceFontScale";
   // Test mode: always show language picker on load.
   // Persistence still saves; later set to false to skip picker when lang is known.
   var ALWAYS_SHOW_LANG_PICKER = true;
 
   var FADE_MS = 280;
+  var FONT_SCALE_MIN = 0.75;
+  var FONT_SCALE_MAX = 2.25;
 
   var FLAG_SVG = {
     ru:
@@ -77,6 +80,115 @@
     } catch (e) {
       /* ignore */
     }
+  }
+
+  function getSavedFontScale() {
+    try {
+      var n = parseFloat(localStorage.getItem(FONT_SCALE_KEY));
+      if (!isFinite(n)) return 1;
+      return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, n));
+    } catch (e) {
+      return 1;
+    }
+  }
+
+  function saveFontScale(scale) {
+    try {
+      localStorage.setItem(FONT_SCALE_KEY, String(scale));
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function touchDistance(touches) {
+    var dx = touches[0].clientX - touches[1].clientX;
+    var dy = touches[0].clientY - touches[1].clientY;
+    return Math.hypot(dx, dy);
+  }
+
+  function initPinchFontScale(onChange) {
+    var scale = getSavedFontScale();
+    var pinchStartDist = 0;
+    var pinchStartScale = scale;
+
+    function applyScale(next, persist) {
+      scale = Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, next));
+      document.documentElement.style.setProperty("--text-scale", String(scale));
+      if (persist) saveFontScale(scale);
+      if (onChange) onChange(scale);
+    }
+
+    applyScale(scale, false);
+
+    document.addEventListener(
+      "touchstart",
+      function (e) {
+        if (e.touches.length === 2) {
+          pinchStartDist = touchDistance(e.touches);
+          pinchStartScale = scale;
+        }
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchmove",
+      function (e) {
+        if (e.touches.length !== 2 || pinchStartDist <= 0) return;
+        e.preventDefault();
+        var ratio = touchDistance(e.touches) / pinchStartDist;
+        applyScale(pinchStartScale * ratio, false);
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      "touchend",
+      function () {
+        if (pinchStartDist > 0) {
+          saveFontScale(scale);
+          pinchStartDist = 0;
+        }
+      },
+      { passive: true }
+    );
+
+    document.addEventListener(
+      "touchcancel",
+      function () {
+        pinchStartDist = 0;
+      },
+      { passive: true }
+    );
+
+    // Safari / iOS: block browser page zoom, map gesture to font scale
+    document.addEventListener(
+      "gesturestart",
+      function (e) {
+        e.preventDefault();
+        pinchStartScale = scale;
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      "gesturechange",
+      function (e) {
+        e.preventDefault();
+        var g = typeof e.scale === "number" ? e.scale : 1;
+        applyScale(pinchStartScale * g, false);
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      "gestureend",
+      function (e) {
+        e.preventDefault();
+        saveFontScale(scale);
+      },
+      { passive: false }
+    );
   }
 
   function assetRoot() {
@@ -352,6 +464,12 @@
 
     buildFlags(barFlags, "flag-btn", false, function (code) {
       setLang(code, { fromOverlay: false, animate: true });
+    });
+
+    initPinchFontScale(function () {
+      requestAnimationFrame(function () {
+        scrollApi.update();
+      });
     });
 
     var saved = getSavedLang();
