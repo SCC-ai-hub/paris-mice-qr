@@ -6,12 +6,6 @@
     { code: "es", label: "Español" }
   ];
 
-  var MICE = [
-    "mouse-green.jpg",
-    "mouse-blue.jpg",
-    "mouse-napoleon.jpg"
-  ];
-
   var LANG_STORAGE_KEY = "parisMiceLang";
   // Test mode: always show language picker on load.
   // Persistence still saves; later set to false to skip picker when lang is known.
@@ -83,15 +77,6 @@
     } catch (e) {
       /* ignore */
     }
-  }
-
-  function pickMouse(id) {
-    var h = 0;
-    var s = String(id || "");
-    for (var i = 0; i < s.length; i++) {
-      h = (h * 31 + s.charCodeAt(i)) | 0;
-    }
-    return MICE[Math.abs(h) % MICE.length];
   }
 
   function assetRoot() {
@@ -303,18 +288,12 @@
     var overlay = qs("[data-lang-overlay]");
     var overlayFlags = qs("[data-overlay-flags]");
     var barFlags = qs("[data-bar-flags]");
-    var mouseImg = qs("[data-mouse-img]");
     var textSection = qs(".text-section");
     var scrollApi = initScroll(textSection);
     var currentLang = null;
     var fading = false;
-    var root = assetRoot();
 
     if (textCode) textCode.textContent = entry.id;
-
-    if (mouseImg) {
-      mouseImg.src = root + "assets/mice/" + pickMouse(entry.id);
-    }
 
     function markActiveFlags(code) {
       qsa(".flag-btn", barFlags).forEach(function (b) {

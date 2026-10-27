@@ -6,16 +6,12 @@
   <meta name="theme-color" content="#1a1210">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>QR Text 1.2</title>
-  <link rel="stylesheet" href="../../css/qr-text.css?v=6">
+  <link rel="stylesheet" href="../../css/qr-text.css?v=7">
 </head>
 <body>
   <div class="stage">
     <div class="panel">
-      <header class="mice-band" aria-hidden="true">
-        <div class="mice-band__pattern"></div>
-        <div class="mice-row">
-          <img data-mouse-img src="../../assets/mice/mouse-green.jpg" alt="">
-        </div>
+      <header class="lang-band">
         <div class="lang-bar" data-bar-flags></div>
       </header>
 
@@ -47,7 +43,7 @@
     </div>
   </div>
 
-  <script src="../../js/qr-text.js?v=6"></script>
+  <script src="../../js/qr-text.js?v=7"></script>
   <script>
     QRTextApp.load("1.2").catch(function (err) {
       document.querySelector("[data-text-body]").textContent = "Error loading text.";
